@@ -4,7 +4,9 @@ chat-app
 2. npm run dev(development environment)
 
 chat-app-server
+
 1.npm install
+
 2. node server.js(development environment)
 
 ONGOING development of the following:
