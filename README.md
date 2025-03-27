@@ -6,8 +6,14 @@ chat-app
 chat-app-server
 
 1.npm install
-
 2. node server.js(development environment)
+
+DataSource
+
+1. Use Postgre
+2. Create chatdb
+3. Run the script
+   
 
 ONGOING development of the following:
 1. Improvement of ChatUI
