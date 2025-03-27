@@ -6,7 +6,7 @@ chat-app
 chat-app-server
 
 1.npm install
-2. node server.js(development environment)
+2.node server.js(development environment)
 
 DataSource
 
