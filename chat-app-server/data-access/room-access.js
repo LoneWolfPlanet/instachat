@@ -18,4 +18,9 @@ const getRoomByDescription = async (description) => {
     return result.rows[0];
 };
 
-module.exports = { addRoom, getRoomById, getRoomByDescription  };
+const getRoomsByUserId = async (userId) => {
+    const result = await pool.query('SELECT * FROM room WHERE createdby = $1', [userId]);
+    return result.rows;
+};
+
+module.exports = { addRoom, getRoomById, getRoomByDescription ,getRoomsByUserId };

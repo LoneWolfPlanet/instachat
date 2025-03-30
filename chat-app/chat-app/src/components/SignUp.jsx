@@ -128,7 +128,7 @@ export default function SignUp() {
           const token = data.token;
           if (token && status) {
             sessionStorage.setItem("token", token);
-            navigate("/createroom");
+            navigate("/home");
           }
         } else {
           await response.json();

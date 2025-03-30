@@ -9,16 +9,25 @@ import {
   Typography,
   Box,
   Paper,
+  AppBar,
+  Toolbar,
+  IconButton,
 } from "@mui/material";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import CssBaseline from "@mui/material/CssBaseline";
 import { connectWebSocket, sendMessage } from "../websocket/websocket";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useNavigate } from "react-router-dom";
 
 export default function ChatRoom() {
   const [messages, setMessages] = useState([]);
   const [rawMessages, setRawMessages] = useState([]);
   const [message, setMessage] = useState("");
   const websocketUrl = import.meta.env.VITE_WEBSOCKET_URL;
+  const room = JSON.parse(sessionStorage.getItem("room"));
+  const navigate = useNavigate();
+
+  const [chatRoomName, setChatRoomName] = useState(room.description);
 
   const socket = connectWebSocket(websocketUrl);
 
@@ -57,36 +66,67 @@ export default function ChatRoom() {
   return (
     <React.Fragment>
       <CssBaseline enableColorScheme />
-      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        <WhatsAppIcon style={{ fontSize: "50px" }} />
-        <h1>InstaChat</h1>
-      </div>
-
-      <Paper elevation={3} sx={{ padding: 2, maxWidth: 800, margin: "0 auto" }}>
-        <Typography variant="h5" sx={{ textAlign: "center", marginBottom: 2 }}>
-          Chat Room Name
-        </Typography>
-
+      <AppBar position="static" color="primary">
+        <Toolbar>
+          {/* Back button */}
+          <IconButton edge="start" color="inherit" onClick={() => navigate("/home")}>
+            <ArrowBackIcon /> {/* Back icon */}
+          </IconButton>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            {chatRoomName}
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <Paper
+        elevation={3}
+        sx={{
+          padding: 2,
+          width: "60vw", // Default width is 60% of the viewport width
+          maxWidth: 800, // Add a maximum width for larger screens
+          margin: "0 auto",
+          "@media (max-width: 400px)": {
+            width: "90vw", // Width changes to 90% of the viewport width for screens <= 400px
+          },
+        }}
+      >
         <List
           sx={{
-            maxHeight: 400,
-            minHeight: 200,
+            height: "60vh",
+
             overflowY: "auto",
             border: "1px solid #ccc",
             borderRadius: 1,
             marginBottom: 2,
-            maxWidth: 700
           }}
         >
           {messages.map((msg, index) => (
-            <ListItem key={index} sx={{ justifyContent: index % 2 === 0 ? "flex-start" : "flex-end" }}>
-              <ListItemText
-                primary={
-                  <Typography variant="body2" sx={{ fontSize: "12px" }}>
-                    {msg}
-                  </Typography>
-                }
-              />
+            <ListItem
+              key={index}
+              sx={{
+                display: "flex",
+                justifyContent: index % 2 === 0 ? "flex-start" : "flex-end",
+              }}
+            >
+              <Box
+                sx={{
+                  backgroundColor: index %2 === 0? "success.main": "primary.main", // Use Material-UI's primary color
+                  color: "white", // Font color
+                  display: "inline-block", // Wrap only the content
+                  padding: 1, // Padding around the text
+                  borderRadius: 2, // Rounded bubble effect
+                  maxWidth: "70%", // Limit the chat bubble's width
+                  textAlign: "left", // Align text inside the bubble
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontSize: "12px",
+                  }}
+                >
+                  {msg}
+                </Typography>
+              </Box>
             </ListItem>
           ))}
         </List>

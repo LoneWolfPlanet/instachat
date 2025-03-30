@@ -1,23 +1,21 @@
-const express = require("express");
-const app = express();
-const cors = require('cors');
-
-const port = 3000;
 const {
   addUser,
   getUserByName,
   getUserById
-} = require("./data-access/user-access");
-
+} = require("./services/user-service");
 const {
   encryptPassword,
   validatePassword,
 } = require("./authenticator/encryptor");
-
 const { generateToken ,authenticateToken } = require("./authenticator/tokenizer");
-const { addRoom ,getRoomById,getRoomByDescription} = require("./data-access/room-access");
-const {joinRoom,validateRoom, joinRoomAsGuest} = require("./services/userroom-service")
+const { addRoom ,getRoomById,getRoomByDescription, getRoomsByUserId} = require("./services/room-service");
+const {joinRoom,validateRoom, joinRoomAsGuest} = require("./services/userroom-service");
+const express = require("express");
 const setupWebSocket = require('./websocket'); 
+
+const app = express();
+const cors = require('cors');
+const port = 3000;
 const http = require('http');
 
 app.use(express.json());
@@ -137,6 +135,25 @@ chatroomRoutes.post("/joinroom", async(req, res) => {
         status: 400,
         roomId:null
     });
+  }
+});
+
+chatroomRoutes.get("/chatgroups", authenticateToken, async(req, res) => {
+  try{
+      const userId = req.query.userId;
+      const rooms = getRoomsByUserId(userId);
+
+      res.status(200).send({
+          status:200,
+          rooms:rooms
+      });
+
+  }catch(error){
+      res.status(400).send({
+          message:error.message,
+          status:400,
+          rooms:null
+      });
   }
 });
 

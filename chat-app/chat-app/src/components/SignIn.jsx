@@ -118,7 +118,7 @@ export default function SignIn() {
         if (token && status) {
           sessionStorage.setItem("token", token);
           sessionStorage.setItem("userId", user.userid);
-          navigate("/createroom");
+          navigate("/home");
         }
       } else {
         const results = await response.json();
