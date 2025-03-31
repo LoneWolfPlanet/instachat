@@ -10,6 +10,8 @@ const {
 const { generateToken ,authenticateToken } = require("./authenticator/tokenizer");
 const { addRoom ,getRoomById,getRoomByDescription, getRoomsByUserId} = require("./services/room-service");
 const {joinRoom,validateRoom, joinRoomAsGuest} = require("./services/userroom-service");
+const {getMessagesByRoomId} = require('./services/message-service');
+
 const express = require("express");
 const setupWebSocket = require('./websocket'); 
 
@@ -141,11 +143,21 @@ chatroomRoutes.post("/joinroom", async(req, res) => {
 chatroomRoutes.get("/chatgroups", authenticateToken, async(req, res) => {
   try{
       const userId = req.query.userId;
-      const rooms = getRoomsByUserId(userId);
-
+      const rooms = await getRoomsByUserId(userId);
+      let rspRooms = [];
+      for (const room of rooms) {
+        const messages = await getMessagesByRoomId(room.roomid);
+        rspRooms.push({
+          roomid: room.roomid,
+          description: room.description,
+          roomPassPhrase:room.passpharse,
+          messages: messages,
+        });
+      }
+      
       res.status(200).send({
           status:200,
-          rooms:rooms
+          rooms:rspRooms
       });
 
   }catch(error){
@@ -157,6 +169,24 @@ chatroomRoutes.get("/chatgroups", authenticateToken, async(req, res) => {
   }
 });
 
+chatroomRoutes.get("/chatgroup/messages", authenticateToken, async(req, res) => {
+  try{
+      const roomId = req.query.roomId;
+      const messages = await getMessagesByRoomId(roomId);
+      
+      res.status(200).send({
+          status:200,
+          messages:messages
+      });
+
+  }catch(error){
+      res.status(400).send({
+          errorMessage:error.message,
+          status:400,
+          messages:null
+      });
+  }
+});
 // Enable CORS for all origins(For development purpose only. remove this on production)
 app.use(cors());
 

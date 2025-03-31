@@ -1,0 +1,41 @@
+.quarter-circle {
+    width: 0;
+    height: 0;
+    border-top: 100px solid transparent;
+    border-right: 100px solid transparent;
+    border-bottom: 100px solid gray; /* Set the background color here */
+    border-left: 100px solid gray; /* Set the background color here */
+  }
+
+
+.custom-shape-divider-bottom-1703184387 {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+}
+
+.custom-shape-divider-bottom-1703184387 svg {
+    position: relative;
+    display: block;
+    width: calc(161% + 1.3px);
+    height: 479px;
+    transform: rotateY(180deg);
+
+}
+
+.custom-shape-divider-bottom-1703184387 .shape-fill {
+    fill: #FFFFFF ;
+
+}
+
+/** For mobile devices **/
+@media (max-width: 767px) {
+    .custom-shape-divider-bottom-1703184387 svg {
+        width: calc(167% + 1.3px);
+        height: 500px;
+    }
+}
+

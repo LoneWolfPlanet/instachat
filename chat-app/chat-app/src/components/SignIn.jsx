@@ -118,6 +118,7 @@ export default function SignIn() {
         if (token && status) {
           sessionStorage.setItem("token", token);
           sessionStorage.setItem("userId", user.userid);
+          sessionStorage.setItem("username", user.username);
           navigate("/home");
         }
       } else {

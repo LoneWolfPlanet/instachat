@@ -125,9 +125,11 @@ export default function SignUp() {
 
         if (response.ok) {
           const data = await response.json();
-          const token = data.token;
-          if (token && status) {
+          const {token, user} = data;
+          if (token) {
             sessionStorage.setItem("token", token);
+            sessionStorage.setItem("userId", user.userid);
+            sessionStorage.setItem("username", user.username);
             navigate("/home");
           }
         } else {

@@ -35,6 +35,7 @@ CREATE TABLE message (
  phrase text,
  createddate timestamp default current_timestamp,
  chatbyname VARCHAR(255) NULL,
+ usertype INT DEFAULT 2,
  chatbyid INTEGER NULL,
     CONSTRAINT fk_room FOREIGN KEY (roomid)
         REFERENCES public.room (roomid) MATCH SIMPLE

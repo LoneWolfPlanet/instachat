@@ -22,17 +22,77 @@ import { useNavigate } from "react-router-dom";
 export default function ChatRoom() {
   const [messages, setMessages] = useState([]);
   const [rawMessages, setRawMessages] = useState([]);
+  const [isFetchRawMessages, setIsFetchRawMessages ] = useState(false);
   const [message, setMessage] = useState("");
   const websocketUrl = import.meta.env.VITE_WEBSOCKET_URL;
   const room = JSON.parse(sessionStorage.getItem("room"));
-  const navigate = useNavigate();
-
   const [chatRoomName, setChatRoomName] = useState(room.description);
-
+  const [ipAddress, setIpAddress] = useState("");
+  const navigate = useNavigate();
   const socket = connectWebSocket(websocketUrl);
+  const API_ROOT = import.meta.env.VITE_API_ROOT;
+
+  React.useEffect(() => {
+    const fetchIPAddress = async () => {
+      try {
+        const response = await fetch("https://api64.ipify.org?format=json");
+        const data = await response.json();
+        setIpAddress(data.ip); // Extract and set the IP address
+      } catch (error) {
+        console.error("Failed to fetch IP address:", error);
+      }
+    };
+    fetchIPAddress();
+  }, []);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const strRoom = sessionStorage.getItem("room");
+        const room = JSON.parse(strRoom);
+        const response = await fetch(
+          `${API_ROOT}/chatgroup/messages?roomId=${room.roomid}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+            },
+            mode: "cors",
+          }
+        );
+        if (!response.ok) {
+          console.log(response.status);
+        }else{
+          const result = await response.json();
+          setRawMessages(result.messages);
+          let parsedResults = [];
+          for (let i = 0; i<result.messages.length; i++) { 
+            parsedResults.push(formatMessage(result.messages[i]));
+          }
+          setMessages(parsedResults);
+          setIsFetchRawMessages(true);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    if (!isFetchRawMessages) {
+      fetchData();
+    }
+  }, []);
+
+  const comparePrevMessage = (currentMessage) => {
+    const index = currentMessage.indexOf("(");
+    const prevUserMessage = currentMessage.substring(0, index);
+    const username = sessionStorage.getItem("username");
+    if (username == prevUserMessage.trim()) return true;
+    return false;
+  };
 
   const formatMessage = (response) => {
-    return `${response.userName} (${response.datetime}):${response.phrase}`;
+    return `${response.chatbyname} (${response.createddate}):${response.phrase}`;
   };
 
   if (socket) {
@@ -58,6 +118,7 @@ export default function ChatRoom() {
       username: sessionStorage.getItem("username"),
       phrase: message,
       roomId: room.roomid,
+      ipAddress: ipAddress,
       type: sessionStorage.getItem("userType"),
     };
     sendMessage(JSON.stringify(data));
@@ -69,7 +130,11 @@ export default function ChatRoom() {
       <AppBar position="static" color="primary">
         <Toolbar>
           {/* Back button */}
-          <IconButton edge="start" color="inherit" onClick={() => navigate("/home")}>
+          <IconButton
+            edge="start"
+            color="inherit"
+            onClick={() => navigate("/home")}
+          >
             <ArrowBackIcon /> {/* Back icon */}
           </IconButton>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
@@ -104,12 +169,16 @@ export default function ChatRoom() {
               key={index}
               sx={{
                 display: "flex",
-                justifyContent: index % 2 === 0 ? "flex-start" : "flex-end",
+                justifyContent: comparePrevMessage(msg)
+                  ? "flex-start"
+                  : "flex-end",
               }}
             >
               <Box
                 sx={{
-                  backgroundColor: index %2 === 0? "success.main": "primary.main", // Use Material-UI's primary color
+                  backgroundColor: comparePrevMessage(msg)
+                    ? "success.main"
+                    : "primary.main", // Use Material-UI's primary color
                   color: "white", // Font color
                   display: "inline-block", // Wrap only the content
                   padding: 1, // Padding around the text
